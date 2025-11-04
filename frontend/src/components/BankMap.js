@@ -7,7 +7,20 @@ const BankMap = () => {
   const [filteredBranches, setFilteredBranches] = useState([]);
   const [map, setMap] = useState(null);
   const [selectedRegion, setSelectedRegion] = useState("전체");
+  const [selectedBrand, setSelectedBrand] = useState("전체");
   const kakaoKey = process.env.REACT_APP_KAKAO_MAP_KEY;
+
+  const regions = ["전체", "기흥구", "처인구", "수지구"];
+  const bankBrands = ["전체", "KB국민은행", "신한은행", "우리은행", "IBK기업은행", "하나은행"];
+
+  // ✅ 은행 이름만 추출하는 함수
+  const extractBrand = (name) => {
+    const brands = ["KB국민은행", "신한은행", "우리은행", "IBK기업은행", "하나은행"];
+    for (let b of brands) {
+      if (name.includes(b)) return b;
+    }
+    return "기타";
+  };
 
   // ✅ 1. 지점 데이터 로드
   useEffect(() => {
@@ -62,7 +75,7 @@ const BankMap = () => {
 
     if (map.markers) map.markers.forEach((m) => m.setMap(null));
 
-    let openInfoWindow = null; // 🔹 현재 열린 InfoWindow 추적용
+    let openInfoWindow = null;
 
     const markers = list.map((b) => {
       const marker = new kakao.maps.Marker({
@@ -81,11 +94,9 @@ const BankMap = () => {
 
       kakao.maps.event.addListener(marker, "click", () => {
         if (openInfoWindow === info) {
-          // 🔹 같은 마커를 다시 클릭하면 닫기
           info.close();
           openInfoWindow = null;
         } else {
-          // 🔹 기존 열린 창 닫고 새 창 열기
           if (openInfoWindow) openInfoWindow.close();
           info.open(map, marker);
           openInfoWindow = info;
@@ -104,7 +115,7 @@ const BankMap = () => {
     map.setBounds(bounds);
   }
 
-  // ✅ 4. 내 위치 찾기 (좌표 변환 + 정확도 개선)
+  // ✅ 4. 내 위치 찾기
   const handleFindMyLocation = () => {
     if (!navigator.geolocation) {
       alert("❌ 현재 브라우저에서는 위치 정보를 지원하지 않습니다.");
@@ -116,10 +127,8 @@ const BankMap = () => {
         const { latitude, longitude } = position.coords;
         const kakao = window.kakao;
         const geocoder = new kakao.maps.services.Geocoder();
-
         const locPosition = new kakao.maps.LatLng(latitude, longitude);
 
-        // 실제 주소 확인
         geocoder.coord2Address(
           locPosition.getLng(),
           locPosition.getLat(),
@@ -127,7 +136,6 @@ const BankMap = () => {
             if (status === kakao.maps.services.Status.OK) {
               const address = result[0].address.address_name;
 
-              // 🔹 파란색 원형 마커
               const marker = new kakao.maps.CustomOverlay({
                 position: locPosition,
                 content: `
@@ -144,7 +152,6 @@ const BankMap = () => {
               });
               marker.setMap(map);
 
-              // 🔹 말풍선
               const info = new kakao.maps.CustomOverlay({
                 position: locPosition,
                 content: `
@@ -178,25 +185,29 @@ const BankMap = () => {
     );
   };
 
-  // ✅ 5. 지역 필터 (주소 기반 필터링)
-  const handleRegionClick = (region) => {
-    setSelectedRegion(region);
-    if (region === "전체") {
-      setFilteredBranches(branches);
-    } else {
-      const filtered = branches.filter(
+  // ✅ 5. 지역 + 브랜드 필터링
+  useEffect(() => {
+    let filtered = branches;
+
+    if (selectedRegion !== "전체") {
+      filtered = filtered.filter(
         (b) =>
           b.address &&
-          (b.address.includes(region) ||
-            (region === "수지구" && b.address.includes("수지")) ||
-            (region === "기흥구" && b.address.includes("기흥")) ||
-            (region === "처인구" && b.address.includes("처인")))
+          (b.address.includes(selectedRegion) ||
+            (selectedRegion === "수지구" && b.address.includes("수지")) ||
+            (selectedRegion === "기흥구" && b.address.includes("기흥")) ||
+            (selectedRegion === "처인구" && b.address.includes("처인")))
       );
-      setFilteredBranches(filtered);
     }
-  };
 
-  const regions = ["전체", "기흥구", "처인구", "수지구"];
+    if (selectedBrand !== "전체") {
+      filtered = filtered.filter(
+        (b) => extractBrand(b.bankName) === selectedBrand
+      );
+    }
+
+    setFilteredBranches(filtered);
+  }, [branches, selectedRegion, selectedBrand]);
 
   return (
     <div
@@ -229,7 +240,7 @@ const BankMap = () => {
             용인시 은행 지점 안내
           </h1>
           <p style={{ marginTop: "10px", opacity: "0.9" }}>
-            지역을 선택해 가까운 지점을 찾아보세요
+            지역과 은행을 선택해 가까운 지점을 찾아보세요
           </p>
         </div>
 
@@ -246,7 +257,7 @@ const BankMap = () => {
           {regions.map((region) => (
             <button
               key={region}
-              onClick={() => handleRegionClick(region)}
+              onClick={() => setSelectedRegion(region)}
               style={{
                 backgroundColor:
                   selectedRegion === region ? "#1976d2" : "#f0f0f0",
@@ -264,6 +275,41 @@ const BankMap = () => {
               }}
             >
               {region}
+            </button>
+          ))}
+        </div>
+
+        {/* ✅ 브랜드 필터 버튼 */}
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            gap: "15px",
+            marginTop: "15px",
+            flexWrap: "wrap",
+          }}
+        >
+          {bankBrands.map((brand) => (
+            <button
+              key={brand}
+              onClick={() => setSelectedBrand(brand)}
+              style={{
+                backgroundColor:
+                  selectedBrand === brand ? "#ff9800" : "#f0f0f0",
+                color: selectedBrand === brand ? "white" : "#333",
+                border: "none",
+                borderRadius: "25px",
+                padding: "8px 18px",
+                fontSize: "14px",
+                cursor: "pointer",
+                transition: "all 0.25s ease",
+                boxShadow:
+                  selectedBrand === brand
+                    ? "0 4px 10px rgba(255,152,0,0.3)"
+                    : "none",
+              }}
+            >
+              {brand}
             </button>
           ))}
         </div>
