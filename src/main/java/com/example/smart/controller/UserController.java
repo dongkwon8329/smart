@@ -1,8 +1,8 @@
-package com.example.controller;
+package com.example.smart.controller;
 // src/main/java/com/app/controller/UserController.java
-import com.example.dto.UserSignUpRequest;
-import com.example.dto.UserLoginRequest;
-import com.example.service.UserService;
+import com.example.smart.dto.UserSignUpRequest;
+import com.example.smart.dto.UserLoginRequest;
+import com.example.smart.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

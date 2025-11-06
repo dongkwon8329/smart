@@ -1,6 +1,10 @@
 import React, { useEffect, useRef, useState } from "react";
 import axios from "axios";
 
+// 🚀 수정: Webpack/CRA 환경에 맞게 process.env.REACT_APP_ 접두사 사용
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:8080";
+const KAKAO_KEY = process.env.REACT_APP_KAKAO_MAP_KEY;
+
 const BankMap = () => {
   const mapRef = useRef(null);
   const [branches, setBranches] = useState([]);
@@ -8,7 +12,6 @@ const BankMap = () => {
   const [map, setMap] = useState(null);
   const [selectedRegion, setSelectedRegion] = useState("전체");
   const [selectedBrand, setSelectedBrand] = useState("전체");
-  const kakaoKey = process.env.REACT_APP_KAKAO_MAP_KEY;
 
   const regions = ["전체", "기흥구", "처인구", "수지구"];
   const bankBrands = ["전체", "KB국민은행", "신한은행", "우리은행", "IBK기업은행", "하나은행"];
@@ -26,7 +29,8 @@ const BankMap = () => {
   useEffect(() => {
     const fetchBranches = async () => {
       try {
-        const response = await axios.get("http://localhost:8080/api/branches");
+        // 🚀 수정된 환경 변수 API_BASE_URL 사용
+        const response = await axios.get(`${API_BASE_URL}/api/branches`);
         setBranches(response.data);
         setFilteredBranches(response.data);
       } catch (error) {
@@ -38,11 +42,12 @@ const BankMap = () => {
 
   // ✅ 2. 카카오맵 로드
   useEffect(() => {
-    if (!kakaoKey) return;
+    if (!KAKAO_KEY) return;
     const existing = document.querySelector("script[data-kakao-sdk]");
     if (!existing) {
       const script = document.createElement("script");
-      script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${kakaoKey}&autoload=false&libraries=services`;
+      // 🚀 KAKAO_KEY 변수 사용
+      script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${KAKAO_KEY}&autoload=false&libraries=services`;
       script.async = true;
       script.setAttribute("data-kakao-sdk", "true");
       document.head.appendChild(script);
@@ -60,7 +65,7 @@ const BankMap = () => {
       });
       setMap(createdMap);
     }
-  }, [kakaoKey]);
+  }, []); // 🚀 수정: KAKAO_KEY를 제거하여 ESLint 경고 해결
 
   // ✅ 3. 마커 렌더링
   useEffect(() => {

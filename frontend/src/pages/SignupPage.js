@@ -16,7 +16,7 @@ const SignupPage = () => {
     });
 
     // 💡 백엔드 API 기본 URL 설정
-    const API_BASE_URL = 'http://localhost:8081/api/users';
+    const API_BASE_URL = 'http://localhost:8080/api/users';
     const navigate = useNavigate();
 
     const handleChange = (e) => {
@@ -56,7 +56,7 @@ const SignupPage = () => {
         // 4. 백엔드 API 호출 로직
         try {
 
-            const response = await fetch("http://localhost:8081/api/users/signup", {
+            const response = await fetch("http://localhost:8080/api/users/signup", {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

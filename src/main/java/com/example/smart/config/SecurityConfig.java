@@ -1,9 +1,8 @@
-package com.example.config; // ⬅️ 본인의 패키지 경로에 맞게 수정해주세요.
+package com.example.smart.config; // ⬅️ 본인의 패키지 경로에 맞게 수정해주세요.
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order; // Order import
-import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;

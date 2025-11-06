@@ -1,0 +1,35 @@
+.main-container {
+  text-align: center;
+  padding: 100px 20px;
+  background: linear-gradient(180deg, #e0f0ff 0%, #ffffff 100%);
+}
+
+.main-heading {
+  font-size: 48px;
+  font-weight: 800;
+  color: #000;
+}
+
+.sub-heading {
+  font-size: 18px;
+  color: #555;
+  margin-top: 20px;
+}
+
+.cta-button {
+  display: inline-block;
+  margin-top: 40px;
+  padding: 15px 30px;
+  background-color: #0066ff;
+  color: #fff;
+  font-size: 18px;
+  font-weight: 700;
+  border-radius: 12px;
+  text-decoration: none;
+  transition: all 0.3s;
+}
+
+.cta-button:hover {
+  background-color: #0052cc;
+  transform: translateY(-2px);
+}

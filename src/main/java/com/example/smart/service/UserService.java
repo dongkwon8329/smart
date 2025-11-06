@@ -1,9 +1,9 @@
-package com.example.service;
+package com.example.smart.service;
 
-import com.example.dto.UserSignUpRequest;
-import com.example.dto.UserLoginRequest;
-import com.example.entity.User;
-import com.example.repository.UserRepository;
+import com.example.smart.dto.UserSignUpRequest;
+import com.example.smart.dto.UserLoginRequest;
+import com.example.smart.entity.User;
+import com.example.smart.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
