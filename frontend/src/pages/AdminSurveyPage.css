@@ -1,0 +1,153 @@
+/* --- 기본 레이아웃 및 컨테이너 --- */
+.admin-container {
+  padding: 40px 60px;
+  background-color: #f7f9fc; /* 밝고 차분한 배경 */
+  min-height: 100vh;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.admin-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #004d99; /* 금융 앱의 전문적인 딥 블루 */
+  margin-bottom: 30px;
+  border-bottom: 2px solid #e0e6f1;
+  padding-bottom: 10px;
+}
+
+/* --- 상태 메시지 --- */
+.admin-status {
+  padding: 20px;
+  margin: 30px;
+  border-radius: 8px;
+  font-size: 18px;
+  font-weight: 600;
+  text-align: center;
+}
+
+.admin-status.loading {
+  background-color: #e3f2fd;
+  color: #1565c0;
+}
+
+.admin-status.error {
+  background-color: #ffebee;
+  color: #c62828;
+}
+
+/* --- 테이블 스타일 --- */
+.table-wrapper {
+  overflow-x: auto; /* 작은 화면에서 스크롤 가능하도록 설정 */
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.survey-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  table-layout: fixed; /* 컬럼 폭 고정 */
+}
+
+.survey-table th, .survey-table td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #e0e6f1;
+}
+
+/* 헤더 스타일 */
+.survey-table thead th {
+  background-color: #eef2f8; /* 헤더 배경색 */
+  color: #555;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+/* 바디 행 스타일 */
+.survey-table tbody tr:hover {
+  background-color: #f0f7ff; /* 호버 시 배경색 변경 */
+}
+
+.survey-table tbody tr.editing-row {
+  background-color: #fffde7; /* 수정 중인 행 강조 */
+  box-shadow: 0 0 5px rgba(255, 193, 7, 0.5);
+}
+
+.no-data-row td {
+  text-align: center !important;
+  font-style: italic;
+  color: #888;
+  padding: 20px;
+}
+
+/* --- 입력 필드 (수정 모드) --- */
+.admin-input {
+  width: 100%;
+  padding: 6px 8px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-sizing: border-box;
+  font-size: 14px;
+}
+
+.admin-input:focus {
+  border-color: #007aff;
+  box-shadow: 0 0 0 2px rgba(0, 122, 255, 0.2);
+  outline: none;
+}
+
+/* --- 버튼 및 액션 --- */
+.admin-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.admin-actions button {
+  padding: 6px 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.3s, transform 0.1s;
+}
+
+/* 수정 버튼 */
+.btn-edit {
+  background-color: #007aff;
+  color: white;
+}
+.btn-edit:hover {
+  background-color: #005bb5;
+  transform: translateY(-1px);
+}
+
+/* 삭제 버튼 */
+.btn-delete {
+  background-color: #e62e49;
+  color: white;
+}
+.btn-delete:hover {
+  background-color: #c0243d;
+  transform: translateY(-1px);
+}
+
+/* 저장 버튼 */
+.btn-save {
+  background-color: #4caf50;
+  color: white;
+}
+.btn-save:hover {
+  background-color: #388e3c;
+  transform: translateY(-1px);
+}
+
+/* 취소 버튼 */
+.btn-cancel {
+  background-color: #ff9800;
+  color: white;
+}
+.btn-cancel:hover {
+  background-color: #e68900;
+  transform: translateY(-1px);
+}

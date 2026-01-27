@@ -15,7 +15,7 @@ public class User {
     // DB의 user_id (NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY)
     @Id
     @Column(name = "USER_ID", length = 50)
-    private String userId;
+    public String userId;
 
     @Column(nullable = false, length = 255)
     private String password; // 암호화된 비밀번호 저장
@@ -33,9 +33,10 @@ public class User {
     @Column(name = "GOAL_AMOUNT", precision = 12, scale = 2)
     private BigDecimal goalAmount;
 
-    @Column(nullable = false, length = 10, columnDefinition = "VARCHAR2(10) DEFAULT 'USER'")
+    @Column(name = "ROLE", nullable = false, length = 10, columnDefinition = "VARCHAR2(10) DEFAULT 'USER'")
     private String role = "USER";
 
     @Column(name = "CREATED_AT", columnDefinition = "DATE DEFAULT SYSDATE")
     private LocalDateTime createdAt = LocalDateTime.now();
+
 }

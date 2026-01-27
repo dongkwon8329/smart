@@ -1,0 +1,186 @@
+/* MyPage.css - 메인 페이지 디자인 연관성 강화 버전 */
+
+/* 1. 전체 페이지 래퍼 - 메인 페이지 배경 그라데이션 */
+.mypage-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center; /* 세로 중앙 정렬 */
+    min-height: calc(100vh - 60px); /* 헤더 제외 */
+    padding: 60px 20px; /* 상하 여백 늘림 */
+    background: linear-gradient(135deg, #e0f2fe 0%, #bbdefb 100%); /* 메인 페이지와 유사한 그라데이션 */
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #333;
+}
+
+/* 2. 마이페이지 카드 - 메인 페이지의 중앙 강조 박스 스타일 */
+.mypage-card {
+    background-color: #ffffff;
+    padding: 50px 60px; /* 패딩 늘림 */
+    border-radius: 16px; /* 모서리 둥글게 */
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); /* 더 부드럽고 깊은 그림자 */
+    max-width: 900px; /* 최대 너비 */
+    width: 100%;
+    text-align: center;
+    transition: transform 0.3s ease-in-out; /* 호버 효과 */
+}
+
+.mypage-card:hover {
+    transform: translateY(-5px); /* 살짝 위로 뜨는 효과 */
+}
+
+/* 3. 환영 메시지 - 메인 페이지의 강조 텍스트와 유사하게 */
+.mypage-welcome-message {
+    font-size: 2.8em; /* 더 큰 글씨 */
+    font-weight: 800; /* 더 굵은 글씨 */
+    color: #222;
+    margin-bottom: 40px;
+    line-height: 1.3;
+}
+
+.mypage-welcome-message span[role="img"] {
+    margin-right: 15px;
+    font-size: 1.1em; /* 이모티콘 크기 */
+}
+
+/* 4. 사용자 정보 섹션 */
+.mypage-user-info {
+    text-align: left;
+    margin: 0 auto 50px auto; /* 중앙 정렬 및 아래 여백 */
+    max-width: 550px; /* 정보 박스 너비 제한 */
+    padding: 30px;
+    background-color: #f8fcfd; /* 약간 다른 배경색 */
+    border-radius: 10px;
+    border: 1px solid #e0eaf6;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.05); /* 내부 그림자 */
+}
+
+.mypage-user-info p {
+    font-size: 1.2em;
+    color: #444;
+    margin-bottom: 15px;
+    display: flex; /* 레이블과 값을 정렬하기 위해 */
+    align-items: center;
+}
+
+.mypage-user-info p:last-child {
+    margin-bottom: 0;
+}
+
+.mypage-user-info strong {
+    color: #007bff; /* 메인 페이지의 강조색 */
+    margin-right: 15px;
+    min-width: 100px; /* 레이블 너비 통일 */
+    font-weight: 600;
+}
+
+/* 연소득 강조 값 - 메인 페이지 버튼과 유사한 색상 */
+.mypage-highlight-value {
+    color: #28a745; /* 초록색 강조 */
+    font-weight: bold;
+    font-size: 1.25em;
+    background-color: #e6ffe9;
+    padding: 5px 10px;
+    border-radius: 5px;
+}
+
+
+/* 5. 나의 활동 및 설정 섹션 */
+.mypage-action-section {
+    margin-top: 50px;
+    padding-top: 40px;
+    border-top: 1px dashed #e0e0e0; /* 점선 구분선 */
+}
+
+.mypage-action-section h3 {
+    font-size: 2em;
+    color: #333;
+    margin-bottom: 35px;
+    font-weight: 700;
+}
+
+/* 활동 버튼 그리드 - 메인 페이지 버튼과 유사한 디자인 */
+.mypage-action-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); /* 반응형 그리드 */
+    gap: 25px; /* 버튼 간 간격 */
+    margin: 0 auto;
+    max-width: 800px; /* 그리드 최대 너비 */
+}
+
+.mypage-action-button {
+    display: flex;
+    flex-direction: column; /* 아이콘 위에 텍스트 */
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2em;
+    color: #007bff; /* 메인 페이지 버튼 색상 */
+    text-decoration: none;
+    padding: 30px 20px;
+    background: linear-gradient(45deg, #e3f2fd 0%, #bbdefb 100%); /* 버튼 배경 그라데이션 */
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 5px 15px rgba(0, 123, 255, 0.15); /* 버튼 그림자 */
+    transition: all 0.3s ease;
+    font-weight: 600;
+    min-height: 120px; /* 최소 높이 */
+}
+
+.mypage-action-button:hover {
+    background: linear-gradient(45deg, #bbdefb 0%, #90caf9 100%); /* 호버 시 배경색 변경 */
+    color: #0056b3;
+    box-shadow: 0 8px 25px rgba(0, 123, 255, 0.25);
+    transform: translateY(-5px) scale(1.02); /* 약간 커지면서 위로 뜨는 효과 */
+}
+
+.mypage-action-button span[role="img"] {
+    font-size: 2.5em; /* 아이콘 크기 강조 */
+    margin-bottom: 15px;
+    color: #0056b3; /* 아이콘 색상 */
+}
+
+/* 로딩 및 오류 메시지 */
+.mypage-container {
+    text-align: center;
+    padding: 80px 20px;
+    font-size: 1.5em;
+    color: #666;
+    background: linear-gradient(135deg, #e0f2fe 0%, #bbdefb 100%);
+    min-height: calc(100vh - 60px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mypage-error {
+    color: #dc3545;
+    background-color: #fff0f3;
+    border: 1px solid #dc3545;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(220, 53, 69, 0.15);
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+    .mypage-card {
+        padding: 30px;
+        margin: 20px;
+    }
+    .mypage-welcome-message {
+        font-size: 2em;
+    }
+    .mypage-user-info p {
+        flex-direction: column; /* 모바일에서 세로로 정렬 */
+        align-items: flex-start;
+    }
+    .mypage-user-info strong {
+        margin-bottom: 5px;
+        min-width: unset;
+    }
+    .mypage-action-grid {
+        grid-template-columns: 1fr; /* 모바일에서 한 줄에 하나씩 */
+    }
+    .mypage-action-button {
+        padding: 20px;
+    }
+}

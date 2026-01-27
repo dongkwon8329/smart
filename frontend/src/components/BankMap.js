@@ -1,9 +1,21 @@
 import React, { useEffect, useRef, useState } from "react";
 import axios from "axios";
+import { motion } from 'framer-motion';
 
-// 🚀 수정: Webpack/CRA 환경에 맞게 process.env.REACT_APP_ 접두사 사용
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:8080";
+const API_BASE_URL = "http://localhost:8080";
 const KAKAO_KEY = process.env.REACT_APP_KAKAO_MAP_KEY;
+
+// 💡 애니메이션 설정 (App.js와 동일)
+const pageVariants = {
+    initial: { opacity: 0, x: 50 },
+    in: { opacity: 1, x: 0 },
+    out: { opacity: 0, x: -50 }
+};
+const pageTransition = {
+    type: "tween",
+    ease: "anticipate",
+    duration: 0.4
+};
 
 const BankMap = () => {
   const mapRef = useRef(null);
@@ -14,39 +26,44 @@ const BankMap = () => {
   const [selectedBrand, setSelectedBrand] = useState("전체");
 
   const regions = ["전체", "기흥구", "처인구", "수지구"];
-  const bankBrands = ["전체", "KB국민은행", "신한은행", "우리은행", "IBK기업은행", "하나은행"];
+  // NH농협은행 추가된 배열
+  const bankBrands = ["전체", "KB국민은행", "신한은행", "우리은행", "IBK기업은행", "하나은행", "NH농협은행"];
 
-  // ✅ 은행 이름만 추출하는 함수
+  // ✅ 은행 이름만 추출하는 함수 (로직 변경 없음)
   const extractBrand = (name) => {
-    const brands = ["KB국민은행", "신한은행", "우리은행", "IBK기업은행", "하나은행"];
+    if (!name) return "기타";
+    const brands = ["KB국민은행", "신한은행", "우리은행", "IBK기업은행", "하나은행", "NH농협은행"];
     for (let b of brands) {
       if (name.includes(b)) return b;
     }
+    // 기타 은행 처리 로직
+    if (name.includes("새마을금고") || name.includes("Sh수협은행") || name.includes("SC제일은행")) return "기타";
     return "기타";
   };
 
-  // ✅ 1. 지점 데이터 로드
+  // ✅ 1. 지점 데이터 로드 (로직 변경 없음)
   useEffect(() => {
     const fetchBranches = async () => {
       try {
-        // 🚀 수정된 환경 변수 API_BASE_URL 사용
         const response = await axios.get(`${API_BASE_URL}/api/branches`);
         setBranches(response.data);
         setFilteredBranches(response.data);
       } catch (error) {
-        console.error("❌ 지점 정보를 불러오지 못했습니다:", error);
+        console.error("❌ 지점 정보를 불러오지 못했습니다. 백엔드 서버 상태(8080포트) 및 CORS 설정을 확인하세요:", error);
       }
     };
     fetchBranches();
   }, []);
 
-  // ✅ 2. 카카오맵 로드
+  // ✅ 2. 카카오맵 로드 (로직 변경 없음)
   useEffect(() => {
-    if (!KAKAO_KEY) return;
+    if (!KAKAO_KEY) {
+        console.error("❌ 카카오 맵 키(REACT_APP_KAKAO_MAP_KEY)가 로드되지 않았습니다.");
+        return;
+    }
     const existing = document.querySelector("script[data-kakao-sdk]");
     if (!existing) {
       const script = document.createElement("script");
-      // 🚀 KAKAO_KEY 변수 사용
       script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${KAKAO_KEY}&autoload=false&libraries=services`;
       script.async = true;
       script.setAttribute("data-kakao-sdk", "true");
@@ -58,19 +75,29 @@ const BankMap = () => {
 
     function initMap() {
       if (!mapRef.current) return;
-      const center = new window.kakao.maps.LatLng(37.274, 127.118);
+      const center = new window.kakao.maps.LatLng(37.2862, 127.1824);
       const createdMap = new window.kakao.maps.Map(mapRef.current, {
         center,
         level: 6,
       });
       setMap(createdMap);
     }
-  }, []); // 🚀 수정: KAKAO_KEY를 제거하여 ESLint 경고 해결
+  }, []);
 
-  // ✅ 3. 마커 렌더링
+  // ✅ 3. 마커 렌더링 + 지도 크기 오류 해결
   useEffect(() => {
+    if (map) {
+        // 🔑 [수정/추가] 지도 영역이 깨지는 현상(회색 화면) 해결
+        setTimeout(() => {
+            map.relayout();
+        }, 100);
+    }
+
     if (map && filteredBranches.length > 0) {
       renderMarkers(map, filteredBranches);
+    } else if (map && filteredBranches.length === 0) {
+        // 필터링 결과가 0개일 때 마커만 지우고 지도는 그대로 둠
+        if (map.markers) map.markers.forEach((m) => m.setMap(null));
     }
   }, [filteredBranches, map]);
 
@@ -83,18 +110,18 @@ const BankMap = () => {
     let openInfoWindow = null;
 
     const markers = list.map((b) => {
+      // 🔑 [최종 수정] Hibernate 로그에 따른 소문자 필드명(latitude, longitude) 사용
       const marker = new kakao.maps.Marker({
         position: new kakao.maps.LatLng(b.latitude, b.longitude),
-        title: b.bankName,
+        title: b.bank_name, // 🔑 [최종 수정] bank_name 사용
       });
       marker.setMap(map);
 
       const info = new kakao.maps.InfoWindow({
         content: `
-          <div style="padding:10px;font-size:13px;line-height:1.5;color:#333;">
-            <b style="color:#005bac;">🏦 ${b.bankName}</b><br/>
-            ${b.address}
-          </div>`,
+          <div style="padding:10px;font-size:13px;line-height:1.5;color:#333; min-width:180px;">
+            <b style="color:#005bac;">🏦 ${b.bank_name}</b><br/>
+            ${b.address} </div>`,
       });
 
       kakao.maps.event.addListener(marker, "click", () => {
@@ -113,6 +140,7 @@ const BankMap = () => {
 
     map.markers = markers;
 
+    // 지도 영역 설정
     const bounds = new kakao.maps.LatLngBounds();
     list.forEach((b) =>
       bounds.extend(new kakao.maps.LatLng(b.latitude, b.longitude))
@@ -120,8 +148,9 @@ const BankMap = () => {
     map.setBounds(bounds);
   }
 
-  // ✅ 4. 내 위치 찾기
+  // ✅ 4. 내 위치 찾기 (로직 변경 없음)
   const handleFindMyLocation = () => {
+    // ... (로직 생략)
     if (!navigator.geolocation) {
       alert("❌ 현재 브라우저에서는 위치 정보를 지원하지 않습니다.");
       return;
@@ -129,6 +158,7 @@ const BankMap = () => {
 
     navigator.geolocation.getCurrentPosition(
       (position) => {
+        // ... (내 위치 찾기 로직은 동일)
         const { latitude, longitude } = position.coords;
         const kakao = window.kakao;
         const geocoder = new kakao.maps.services.Geocoder();
@@ -196,6 +226,7 @@ const BankMap = () => {
 
     if (selectedRegion !== "전체") {
       filtered = filtered.filter(
+        // 🔑 [최종 수정] b.address 사용
         (b) =>
           b.address &&
           (b.address.includes(selectedRegion) ||
@@ -207,7 +238,8 @@ const BankMap = () => {
 
     if (selectedBrand !== "전체") {
       filtered = filtered.filter(
-        (b) => extractBrand(b.bankName) === selectedBrand
+        // 🔑 [최종 수정] b.bank_name 사용
+        (b) => extractBrand(b.bank_name) === selectedBrand
       );
     }
 
@@ -215,13 +247,19 @@ const BankMap = () => {
   }, [branches, selectedRegion, selectedBrand]);
 
   return (
-    <div
-      style={{
-        backgroundColor: "#f7f8fa",
-        minHeight: "100vh",
-        padding: "50px 0",
-        fontFamily: "Pretendard, sans-serif",
-      }}
+    <motion.div
+        initial="initial"
+        animate="in"
+        exit="out"
+        variants={pageVariants}
+        transition={pageTransition}
+        style={{
+            backgroundColor: "#f7f8fa",
+            minHeight: "100vh",
+            padding: "50px 0",
+            fontFamily: "Pretendard, sans-serif",
+            textAlign: 'center',
+        }}
     >
       <div
         style={{
@@ -363,7 +401,7 @@ const BankMap = () => {
           <b style={{ color: "#1976d2" }}>{filteredBranches.length}</b>개
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 

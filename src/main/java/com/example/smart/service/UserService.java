@@ -1,22 +1,35 @@
 package com.example.smart.service;
 
+import com.example.smart.dto.AdminUserResponse;
 import com.example.smart.dto.UserSignUpRequest;
 import com.example.smart.dto.UserLoginRequest;
 import com.example.smart.entity.User;
+import com.example.smart.repository.SavingRepository;
 import com.example.smart.repository.UserRepository;
+import com.example.smart.repository.UserSurveyRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.example.smart.dto.UserUpdateRequest;
+
 
 import java.math.BigDecimal;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class UserService {
 
+    private final UserSurveyRepository userSurveyRepository;
+    private final SavingRepository savingRepository;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+
+
 
     // 💡 회원가입 로직
     @Transactional
@@ -73,4 +86,69 @@ public class UserService {
         // 3. 로그인 성공 시 사용자 반환
         return user;
     }
+
+    // 💡 [추가] 사용자 정보 수정 메서드
+    @Transactional
+    public void updateUserInfo(String userId, UserUpdateRequest request) {
+        // 1. 사용자 엔티티 조회
+        User user = userRepository.findByUserId(userId)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with id: " + userId));
+
+        // 2. 필드 값 변경
+        // 요청 데이터가 null이 아닌 경우에만 업데이트
+        if (request.getName() != null) {
+            user.setName(request.getName());
+        }
+        if (request.getIncome() != null) {
+            user.setIncome(request.getIncome());
+        }
+
+        // 3. (Optional) save 호출: @Transactional이 있어 자동으로 반영되지만, 명시적으로 호출할 수도 있음
+        // userRepository.save(user);
+    }
+
+    // 💡 [추가] 관리자용 전체 회원 목록 조회
+    public List<AdminUserResponse> findAllUsersForAdmin() {
+        // 1. UserRepository를 사용하여 모든 User 엔티티 조회
+        List<User> users = userRepository.findAll(); // UserRepository에 findAll() 메소드 존재 가정
+
+        // 2. User 엔티티 목록을 AdminUserResponse DTO 목록으로 변환(Mapping)
+        return users.stream()
+                .map(AdminUserResponse::new)
+                .collect(Collectors.toList());
+    }
+
+    // 💡 [추가] 관리자에 의한 회원 정보 수정 (Update)
+    public void updateUserByAdmin(String userId, UserUpdateRequest request) {
+        // 1. 사용자 ID로 사용자 엔티티를 조회
+        User user = userRepository.findByUserId(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + userId));
+
+        // 2. 요청 DTO를 기반으로 필드 업데이트
+        if (request.getName() != null) {
+            user.setName(request.getName());
+        }
+        if (request.getAge() != null) {
+            user.setAge(request.getAge());
+        }
+        // 🔑 핵심: ROLE 수정 허용
+        if (request.getRole() != null) {
+            user.setRole(request.getRole());
+        }
+
+        // 3. DB에 저장
+        userRepository.save(user);
+    }
+
+    // 💡 [추가] 관리자에 의한 회원 삭제 (Delete)
+    public void deleteUser(String userId) {
+        // 1. 사용자 ID로 사용자 엔티티를 조회
+        User user = userRepository.findByUserId(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + userId));
+
+        // 2. DB에서 삭제
+        userRepository.delete(user);
+    }
 }
+
+

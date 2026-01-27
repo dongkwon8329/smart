@@ -1,16 +1,29 @@
-// src/pages/LoginPage.jsx
+// src/pages/LoginPage.js (수정된 코드)
 
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './LoginPage.css';
+import { motion } from 'framer-motion';
 
-// ⬅️ [수정] onLoginSuccess 함수를 props로 받습니다.
+// 💡 애니메이션 설정 (유지)
+const pageVariants = {
+    initial: { opacity: 0, x: 50 },
+    in: { opacity: 1, x: 0 },
+    out: { opacity: 0, x: -50 }
+};
+const pageTransition = {
+    type: "tween",
+    ease: "anticipate",
+    duration: 0.4
+};
+
 const LoginPage = ({ onLoginSuccess }) => {
   const [loginData, setLoginData] = useState({
     userId: '',
     password: ''
   });
 
+  // API_BASE_URL은 기존대로 유지됩니다. (예시: http://localhost:8080/api/users)
   const API_BASE_URL = 'http://localhost:8080/api/users';
   const navigate = useNavigate();
 
@@ -43,27 +56,54 @@ const LoginPage = ({ onLoginSuccess }) => {
       });
 
       if (response.ok) {
-        // 💡 [핵심 수정] 로그인 성공 후 상태 업데이트
-
         const contentType = response.headers.get("content-type");
-        let userName = loginData.userId; // 기본값은 입력한 아이디로 설정
+        let userName = loginData.userId;
+        let token = null;
+        let userIdFromResponse = loginData.userId;
+        // 🔑 [신규] role 변수 초기화
+        let role = 'USER';
 
         if (contentType && contentType.indexOf("application/json") !== -1) {
-            // 서버 응답 본문에서 사용자 이름(name)을 가져온다고 가정
             const result = await response.json();
-            // 서버 응답에 'name' 필드가 있다면 사용하고, 없으면 로그인 ID 사용
+            token = result.token;
+
+            // 🔑 [핵심 수정 1] 응답에서 userId, name, 그리고 role 값을 추출합니다.
+            userIdFromResponse = result.userId || loginData.userId;
             userName = result.name || loginData.userId;
+            role = result.role || 'USER'; // 서버에서 role을 받습니다.
+
+            // 🔑 [핵심 수정 2] role 값을 localStorage에 저장합니다.
+            localStorage.setItem('userRole', role);
         }
 
-        // ⬅️ App.jsx의 상태를 업데이트하여 Navbar UI를 전환합니다.
+        // 🔑 [핵심 수정 3] userId를 localStorage에 별도로 저장
+        if (userIdFromResponse) {
+            localStorage.setItem('userId', userIdFromResponse);
+        }
+
+        // JWT 토큰 저장
+        if (token) {
+            localStorage.setItem('jwtToken', token);
+        } else {
+            console.warn("로그인 성공했으나 서버로부터 토큰을 받지 못했습니다.");
+        }
+
         if (onLoginSuccess) {
             onLoginSuccess(userName);
         }
 
         alert(`✅ ${userName}님 로그인 성공!`);
-        navigate('/');
+
+        // 🔑 [핵심 수정 4] role 값에 따라 라우팅 경로를 분기합니다.
+        if (role === 'ADMIN') {
+             navigate('/admin'); // 관리자 페이지로 이동
+        } else {
+             navigate('/'); // 일반 사용자 메인 페이지로 이동 (기존 로직)
+        }
+
       } else {
         const errorText = await response.text();
+        // 백엔드에서 에러 메시지를 평문으로 보냈을 경우를 대비하여 처리
         const message = errorText || '아이디 또는 비밀번호를 확인해주세요.';
         alert(`❌ 로그인 실패: ${message}`);
       }
@@ -73,41 +113,55 @@ const LoginPage = ({ onLoginSuccess }) => {
     }
   };
 
-  // ... (return 이하의 JSX 코드는 이전과 동일)
   return (
-    <div className="login-page">
-      <div className="login-container">
-        <h2>로그인</h2>
-        <form onSubmit={handleSubmit}>
-          {/* ... 아이디 및 비밀번호 입력 필드 유지 ... */}
-          <div className="form-group">
-            <label htmlFor="userId">아이디 *</label>
-            <input
-              type="text"
-              id="userId"
-              name="userId"
-              value={loginData.userId}
-              onChange={handleChange}
-              required
-            />
-          </div>
+    <motion.div
+        initial="initial"
+        animate="in"
+        exit="out"
+        variants={pageVariants}
+        transition={pageTransition}
+        style={{
+            padding: '40px',
+            maxWidth: '400px',
+            margin: '50px auto',
+            backgroundColor: 'white',
+            borderRadius: '8px',
+            boxShadow: '0 4px 10px rgba(0,0,0,0.05)'
+        }}
+    >
+        <div className="login-page">
+          <div className="login-container">
+            <h2>로그인</h2>
+            <form onSubmit={handleSubmit}>
+              <div className="form-group">
+                <label htmlFor="userId">아이디 *</label>
+                <input
+                  type="text"
+                  id="userId"
+                  name="userId"
+                  value={loginData.userId}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
 
-          <div className="form-group">
-            <label htmlFor="password">비밀번호</label>
-            <input
-              type="password"
-              id="password"
-              name="password"
-              value={loginData.password}
-              onChange={handleChange}
-              required
-            />
-          </div>
+              <div className="form-group">
+                <label htmlFor="password">비밀번호</label>
+                <input
+                  type="password"
+                  id="password"
+                  name="password"
+                  value={loginData.password}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
 
-          <button type="submit" className="login-button">로그인</button>
-        </form>
-      </div>
-    </div>
+              <button type="submit" className="login-button">로그인</button>
+            </form>
+          </div>
+        </div>
+    </motion.div>
   );
 };
 
